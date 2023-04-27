@@ -16,10 +16,9 @@ class FourierModel(tf.keras.Model):
         strides=2
       ),
       tf.keras.layers.DepthwiseConv1D(
-        filters=16,
-        kernel_size=3,
-        strides=1
-      ),
+        depth_multiplier=16, 
+        kernel_size=3, 
+        strides=1),
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.MaxPool1D(
@@ -27,14 +26,14 @@ class FourierModel(tf.keras.Model):
         strides=2
       ),
       tf.keras.layers.DepthwiseConv1D(
-        filters=16,
+        depth_multiplier=16,
         kernel_size=3,
         strides=1
       ),
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.DepthwiseConv1D(
-        filters=32,
+        depth_multiplier=32,
         kernel_size=3,
         strides=1
       ),
@@ -45,7 +44,7 @@ class FourierModel(tf.keras.Model):
           strides=2
       ),
       tf.keras.layers.DepthwiseConv1D(
-        filters=32,
+        depth_multiplier=32,
         kernel_size=3,
         strides=1
       ),
@@ -67,7 +66,7 @@ class FourierModel(tf.keras.Model):
         strides=2,
       ),
       tf.keras.layers.DepthwiseConv2D(
-        filters=16,
+        depth_multiplier=16,
         kernel_size=(3,3),
         strides=1
       ),
@@ -78,14 +77,14 @@ class FourierModel(tf.keras.Model):
         strides=2
       ),
       tf.keras.layers.DepthwiseConv2D(
-        filters=16,
+        depth_multiplier=16,
         kernel_size=(3,3),
         strides=1
       ),
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.DepthwiseConv2D(
-        filters=32,
+        depth_multiplier=32,
         kernel_size=(3,3),
         strides=1
       ),
@@ -96,7 +95,7 @@ class FourierModel(tf.keras.Model):
         strides=2
       ),
       tf.keras.layers.DepthwiseConv2D(
-        filters=32,
+        depth_multiplier=32,
         kernel_size=(3,3),
         strides=1
       ),
@@ -119,7 +118,7 @@ class FourierModel(tf.keras.Model):
     eeg_conv = self.conv1d_block(inputs)
     stft_out = tf.signal.stft(inputs, frame_length=128, frame_step=512, fft_length=128)
     stft_conv = self.conv2d_block(stft_out)
-    fft_out = tf.signal.fft(tf.cast(inputs, dtype=tf.complex64)))
+    fft_out = tf.signal.fft(tf.cast(inputs, dtype=tf.complex64))
     fft_conv = self.conv2d_block(fft_out)
     dwt_out = tf.signal.dwt(inputs, wavelet='db1')
     dwt_conv = self.conv1d_block(dwt_out)
@@ -131,7 +130,9 @@ class FourierModel(tf.keras.Model):
   def get_config(self):
     super_config = super().get_config()
     return {
-      **super_config
+      'conv1d_block': self.conv1d_block,
+      'conv2d_block': self.conv2d_block,
+      'classifier': self.classifier
     }
   
   @classmethod

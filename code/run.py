@@ -13,7 +13,6 @@ from models.lstm_conv1d import LSTMConvModel
 from models.lstm_optical import LSTMOpticalModel
 
 
-
 def train(args, model: tf.keras.Model) -> None:
   # load full data from csv
   X0 = np.load(
@@ -71,12 +70,13 @@ def train(args, model: tf.keras.Model) -> None:
     histogram_freq=1
   )
   ckpt_cb = tf.keras.callbacks.ModelCheckpoint(
-    checkpoint_path,
+    checkpoint_path + 'cp-{epoch:04d}-{val_accuracy:04d}-{val_loss:04d}.ckpt',
+    monitor='val_accuracy',
     save_weights_only=True,
     verbose=1
   )
   earlystop_cb = tf.keras.callbacks.EarlyStopping(
-    monitor='val_loss',
+    monitor='val_accuracy',
     patience=10
   )
   reduce_lr_cb = tf.keras.callbacks.ReduceLROnPlateau(
@@ -105,9 +105,7 @@ def train(args, model: tf.keras.Model) -> None:
       tf.keras.metrics.BinaryAccuracy(),
       tf.keras.metrics.Precision(),
       tf.keras.metrics.Recall()
-    ],
-    checkpoint_path=checkpoint_path,
-    callbacks=cbs
+    ]
   )
 
   # train model
@@ -176,11 +174,11 @@ def parse_args(args=None) -> Namespace:
   parser.add_argument(
     '--task', 
     type=str, 
-    default='both', 
+    default='train', 
     choices=['train', 'test', 'both'], 
     help='task to run.'
   )
-  parser.add_agument(
+  parser.add_argument(
     '--data', 
     type=str, 
     default='data', 
@@ -189,7 +187,7 @@ def parse_args(args=None) -> Namespace:
   parser.add_argument(
     '--model', 
     type=str, 
-    default='lstm_conv1d', 
+    default='fourier', 
     choices=['1','2','3','fourier','lstm_conv1d','lstm_optical'], 
     help='model to use.'
   )
@@ -202,13 +200,13 @@ def parse_args(args=None) -> Namespace:
   parser.add_argument(
     '--batch_size', 
     type=int, 
-    default=32, 
+    default=6, 
     help='batch size.'
   )
   parser.add_argument(
     '--lr', 
     type=float, 
-    default=0.001, 
+    default=0.005, 
     help='learning rate.'
   )
   
