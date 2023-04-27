@@ -1,19 +1,15 @@
-# model 1: LSTM with optical flow
-
 import tensorflow as tf
-from tensorflow import keras
 
 
-class LSTMOpticalModel(keras.Model):
+class LSTMOpticalModel(tf.keras.Model):
 
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
-
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    # TODO: Implement architecture
 
   @tf.function
   def call(self, inputs):
+    # TODO: Implement forward pass
     pass
 
   def get_config(self):

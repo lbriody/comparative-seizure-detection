@@ -1,15 +1,15 @@
-# model 2: lstm with conv1d
-
 import tensorflow as tf
-from tensorflow import keras
 
-class LSTMConvModel(keras.Model):
+
+class LSTMConvModel(tf.keras.Model):
   
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    # TODO: Implement architecture
 
   @tf.function
   def call(self, inputs):
+    # TODO: Implement forward pass
     pass
 
   def get_config(self):
@@ -21,3 +21,4 @@ class LSTMConvModel(keras.Model):
   @classmethod
   def from_config(cls, config):
     return cls(**config)
+  

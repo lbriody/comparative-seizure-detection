@@ -5,29 +5,65 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import datetime
-import time
-import sys
 from argparse import ArgumentParser, Namespace
-from tqdm import tqdm
-from sklearn import metrics
 
+# import models
 from models.fourier import FourierModel 
 from models.lstm_conv1d import LSTMConvModel
 from models.lstm_optical import LSTMOpticalModel
 
 
 
-def train(args, model):
+def train(args, model: tf.keras.Model) -> None:
   # load full data from csv
-  X0 = np.load(os.path.join(args.data, 'train', 'inputs.npy'))
-  Y0 = np.load(os.path.join(args.data, 'train', 'labels.npy'))
-  X1 = np.load(os.path.join(args.data, 'test', 'inputs.npy'))
-  Y1 = np.load(os.path.join(args.data, 'test', 'labels.npy'))
+  X0 = np.load(
+    os.path.join(
+      args.data, 
+      'train', 
+      'inputs.npy'
+    )
+  )
+  Y0 = np.load(
+    os.path.join(
+      args.data, 
+      'train', 
+      'labels.npy'
+    )
+  )
+  X1 = np.load(
+    os.path.join(
+      args.data, 
+      'test', 
+      'inputs.npy'
+    )
+  )
+  Y1 = np.load(
+    os.path.join(
+      args.data, 
+      'test', 
+      'labels.npy'
+    )
+  )
 
   # create log and ckpt directories
-  log_dir = os.path.join('logs', args.model, datetime.datetime.now().strftime('%Y%m%d-%H%M%S'))
-  os.makedirs(log_dir, exist_ok=True)
-  checkpoint_path = os.path.join('checkpoints', args.model)
+  log_dir = os.path.join(
+    'logs',
+    args.model,
+    datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+  )
+  os.makedirs(
+    log_dir,
+    exist_ok=True
+  )
+  checkpoint_path = os.path.join(
+    'checkpoints',
+    args.model,
+    datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+  )
+  os.makedirs(
+    checkpoint_path,
+    exist_ok=True
+  )
 
   # create callbacks
   tensorboard_cb = tf.keras.callbacks.TensorBoard(
@@ -51,7 +87,6 @@ def train(args, model):
     verbose=0
   )
   terminate_nan_cb = tf.keras.callbacks.TerminateOnNaN()
-
   cbs = [
     tensorboard_cb,
     ckpt_cb,
@@ -59,7 +94,6 @@ def train(args, model):
     reduce_lr_cb,
     terminate_nan_cb
   ]
-
 
   # create model
   model.compile(
@@ -87,9 +121,21 @@ def train(args, model):
   )    
 
 
-def test(args, model):
-  X1 = np.load(os.path.join(args.data, 'test', 'inputs.npy'))
-  Y1 = np.load(os.path.join(args.data, 'test', 'labels.npy'))
+def test(args, model: tf.keras.Model) -> None:
+  X1 = np.load(
+    os.path.join(
+      args.data, 
+      'test', 
+      'inputs.npy'
+    )
+  )
+  Y1 = np.load(
+    os.path.join(
+      args.data, 
+      'test', 
+      'labels.npy'
+    )
+  )
 
   model.compile(
     optimizer=tf.keras.optimizers.Adam(
@@ -110,10 +156,6 @@ def test(args, model):
   )
 
 
-
-  
-
-
 def get_model(args) -> keras.Model:
   if args.model == 'lstm_conv':
     return LSTMConvModel()
@@ -123,30 +165,71 @@ def get_model(args) -> keras.Model:
     return FourierModel()
 
 
-def parse_args() -> Namespace:
-  parser = ArgumentParser(description='Train and test models.')
-  parser.add_argument('--load_weights', type=str, default=None, help='path to model weights.')
-  parser.add_argument('--test', action='store_true', help='test model.')
-  parser.add_agument('--data', type=str, default='data', help='path to data directory.')
-  parser.add_argument('--model', type=str, default='lstm_conv', help='model to use. options: lstm_conv, lstm_optical, fourier.')
-  parser.add_argument('--epochs', type=int, default=50, help='number of epochs to train.')
-  parser.add_argument('--batch_size', type=int, default=32, help='batch size.')
-  parser.add_argument('--lr', type=float, default=0.001, help='learning rate.')
+def parse_args(args=None) -> Namespace:
+  parser = ArgumentParser(description='train and test models.')
+  parser.add_argument(
+    '--load_weights',
+    type=str, 
+    default=None, 
+    help='path to model weights.'
+  )
+  parser.add_argument(
+    '--task', 
+    type=str, 
+    default='both', 
+    choices=['train', 'test', 'both'], 
+    help='task to run.'
+  )
+  parser.add_agument(
+    '--data', 
+    type=str, 
+    default='data', 
+    help='path to data directory.'
+  )
+  parser.add_argument(
+    '--model', 
+    type=str, 
+    default='lstm_conv1d', 
+    choices=['1','2','3','fourier','lstm_conv1d','lstm_optical'], 
+    help='model to use.'
+  )
+  parser.add_argument(
+    '--epochs', 
+    type=int, 
+    default=50, 
+    help='number of epochs to train.'
+  )
+  parser.add_argument(
+    '--batch_size', 
+    type=int, 
+    default=32, 
+    help='batch size.'
+  )
+  parser.add_argument(
+    '--lr', 
+    type=float, 
+    default=0.001, 
+    help='learning rate.'
+  )
   
-  return parser.parse_args()
+  if args is None:
+    return parser.parse_args()   # For calling through command line/terminal.
+  return parser.parse_args(args) # For calling through notebook.
 
-def main():
-  args = parse_args()
+def main(args) -> None:
   model = get_model(args)
+  if args.load_weights is not None: model.load_weights(args.load_weights)
 
-  # train or test
-  if not args.test:
+  if args.task in ('train', 'both'): 
     train(args, model)
 
-  else:
-    model.load_weights(args.load_weights)
+  if args.task == 'test':
+    if args.load_weights is None: raise ValueError('load_weights must be specified for testing.')
+    test(args, model)
+  
+  if args.task == 'both': 
     test(args, model)
 
 
 if __name__ == '__main__':
-  main()
+  main(parse_args())

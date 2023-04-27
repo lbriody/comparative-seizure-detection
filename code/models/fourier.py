@@ -1,18 +1,21 @@
-# model 3: conv1d with fourier wavelet transform
-
 import tensorflow as tf
-from tensorflow import keras
 
-class FourierModel(keras.Model):
-  
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
 
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
+class FourierModel(tf.keras.Model):
+
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    # TODO: Implement architecture
+    self.convolutional_extractor = tf.keras.Sequential([
+      
+    ])
+    self.classifier = tf.keras.Sequential([
+      
+    ])
 
   @tf.function
   def call(self, inputs):
+    # TODO: Implement forward pass
     pass
 
   def get_config(self):
@@ -24,3 +27,4 @@ class FourierModel(keras.Model):
   @classmethod
   def from_config(cls, config):
     return cls(**config)
+  
