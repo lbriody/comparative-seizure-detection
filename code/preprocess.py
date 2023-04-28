@@ -84,7 +84,7 @@ def train_test_split_csv(
       'train', 
       'inputs.npy'
     ), 
-    X0
+    np.asarray(X0).reshape(-1, num_cols-1, 1)
   )
   np.save(
     os.path.join(
@@ -100,7 +100,7 @@ def train_test_split_csv(
       'test',
       'inputs.npy'
     ),
-    X1
+    np.asarray(X1).reshape(-1, num_cols-1, 1)
   )
   np.save(
     os.path.join(

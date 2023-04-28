@@ -108,6 +108,9 @@ def train(args, model: tf.keras.Model) -> None:
     ]
   )
 
+  model.build(input_shape=[None, 178, 1])
+  model.summary()
+
   # train model
   model.fit(
     x=X0,
