@@ -9,9 +9,6 @@ from argparse import ArgumentParser, Namespace
 
 # import models
 from models.fourier import FourierModel 
-from models.lstm_conv1d import LSTMConvModel
-from models.lstm_optical import LSTMOpticalModel
-
 
 def train(args, model: tf.keras.Model) -> None:
   # load full data from csv
@@ -108,8 +105,7 @@ def train(args, model: tf.keras.Model) -> None:
     ]
   )
 
-  model.build(input_shape=[None, 178, 1])
-  model.summary()
+  model.build(input_shape=(None, 178, 1))
 
   # train model
   model.fit(
@@ -158,11 +154,8 @@ def test(args, model: tf.keras.Model) -> None:
 
 
 def get_model(args) -> keras.Model:
-  if args.model == 'lstm_conv':
-    return LSTMConvModel()
-  elif args.model == 'lstm_optical':
-    return LSTMOpticalModel()
-  elif args.model == 'fourier':
+  # TODO: alter for new plan
+  if args.model == 'fourier':
     return FourierModel()
 
 
@@ -191,11 +184,23 @@ def parse_args(args=None) -> Namespace:
     '--model', 
     type=str, 
     default='fourier', 
-    choices=['1','2','3','fourier','lstm_conv1d','lstm_optical'], 
+    choices=['model_1d','model_2d','model_full'], 
     help='model to use.'
   )
   parser.add_argument(
-    '--epochs', 
+    '--weights_1d',
+    type=str,
+    default=None,
+    help='path to 1d model weights.'
+  )
+  parser.add_argument(
+    '--weights_2d',
+    type=str,
+    default=None,
+    help='path to 2d model weights.'
+  )
+  parser.add_argument(
+    '--epochs',
     type=int, 
     default=50, 
     help='number of epochs to train.'
@@ -219,7 +224,10 @@ def parse_args(args=None) -> Namespace:
 
 def main(args) -> None:
   model = get_model(args)
-  if args.load_weights is not None: model.load_weights(args.load_weights)
+  if args.model == 'model_full':
+    if not args.weights_1d or args.weights_2d is None:
+      raise ValueError('weights_1d and weights_2d must be specified for model_full.')
+  if args.load_weights is not None: model.load_weights(args)
 
   if args.task in ('train', 'both'): 
     train(args, model)

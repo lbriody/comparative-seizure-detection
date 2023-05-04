@@ -7,7 +7,6 @@ class FourierModel(tf.keras.Model):
     super().__init__(*args, **kwargs)
     self.conv1d_block = tf.keras.Sequential([
       tf.keras.layers.Conv1D(
-        input_shape=(178, 1),
         filters=16,
         kernel_size=31,
         strides=1,
@@ -17,13 +16,11 @@ class FourierModel(tf.keras.Model):
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.MaxPool1D(
-        input_shape=(178, 16),
         pool_size=3,
         strides=2,
         name='maxpool1d_1'
       ),
       tf.keras.layers.DepthwiseConv1D(
-        input_shape=(89, 16),
         depth_multiplier=16, 
         kernel_size=3, 
         strides=1,
@@ -33,13 +30,11 @@ class FourierModel(tf.keras.Model):
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.MaxPool1D(
-        input_shape=(89, 16),
         pool_size=3,
         strides=2,
         name='maxpool1d_2'
       ),
       tf.keras.layers.DepthwiseConv1D(
-        input_shape=(44, 16),
         depth_multiplier=16,
         kernel_size=3,
         strides=1,
@@ -49,7 +44,6 @@ class FourierModel(tf.keras.Model):
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.DepthwiseConv1D(
-        input_shape=(44, 16),
         depth_multiplier=32,
         kernel_size=3,
         strides=1,
@@ -59,13 +53,11 @@ class FourierModel(tf.keras.Model):
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.MaxPool1D(
-        input_shape=(44, 16),
         pool_size=3,
         strides=2,
         name='maxpool1d_3'
       ),
       tf.keras.layers.DepthwiseConv1D(
-        input_shape=(22, 16),
         depth_multiplier=32,
         kernel_size=3,
         strides=1,
@@ -74,79 +66,79 @@ class FourierModel(tf.keras.Model):
       ),
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
-      tf.keras.layers.GlobalAveragePooling1D()
-    ])
+      tf.keras.layers.GlobalAveragePooling1D(data_format='channels_first')
+    ], name='conv1d_block')
 
-    self.conv2d_block = tf.keras.Sequential([
-      tf.keras.layers.Conv2D(
-        filters=16,
-        kernel_size=(15,7),
-        strides=1,
-        padding='same',
-        name='conv2d_1'
-      ),
-      tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.ReLU(),
-      tf.keras.layers.MaxPool2D(
-        pool_size=(3,3),
-        strides=2,
-        name='max_pool_1',
-        padding='same'
-      ),
-      tf.keras.layers.DepthwiseConv2D(
-        depth_multiplier=16,
-        kernel_size=(3,3),
-        strides=1,
-        padding='same',
-        name='depthwise_conv2d_1'
-      ),
-      tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.ReLU(),
-      tf.keras.layers.MaxPool2D(
-        pool_size=(3,3),
-        strides=2,
-        name='max_pool_2',
-        padding='same'
-      ),
-      tf.keras.layers.DepthwiseConv2D(
-        depth_multiplier=16,
-        kernel_size=(3,3),
-        strides=1,
-        padding='same',
-        name='depthwise_conv2d_2'
-      ),
-      tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.ReLU(),
-      tf.keras.layers.DepthwiseConv2D(
-        depth_multiplier=32,
-        kernel_size=(3,3),
-        strides=1,
-        padding='same',
-        name='depthwise_conv2d_3'
-      ),
-      tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.ReLU(),
-      tf.keras.layers.MaxPool2D(
-        pool_size=(3,3),
-        strides=2,
-        name='max_pool_3',
-        padding='same'
-      ),
-      tf.keras.layers.DepthwiseConv2D(
-        depth_multiplier=32,
-        kernel_size=(3,3),
-        strides=1,
-        padding='same',
-        name='depthwise_conv2d_4'
-      ),
-      tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.ReLU(),
-      tf.keras.layers.GlobalAveragePooling2D()
-    ])
+    # self.conv2d_block = tf.keras.Sequential([
+    #   tf.keras.layers.Conv2D(
+    #     filters=16,
+    #     kernel_size=(15,7),
+    #     strides=1,
+    #     padding='same',
+    #     name='conv2d_1'
+    #   ),
+    #   tf.keras.layers.BatchNormalization(momentum=0.9),
+    #   tf.keras.layers.ReLU(),
+    #   tf.keras.layers.MaxPool2D(
+    #     pool_size=(3,3),
+    #     strides=2,
+    #     name='max_pool_1',
+    #     padding='same'
+    #   ),
+    #   tf.keras.layers.DepthwiseConv2D(
+    #     depth_multiplier=16,
+    #     kernel_size=(3,3),
+    #     strides=1,
+    #     padding='same',
+    #     name='depthwise_conv2d_1'
+    #   ),
+    #   tf.keras.layers.BatchNormalization(momentum=0.9),
+    #   tf.keras.layers.ReLU(),
+    #   tf.keras.layers.MaxPool2D(
+    #     pool_size=(3,3),
+    #     strides=2,
+    #     name='max_pool_2',
+    #     padding='same'
+    #   ),
+    #   tf.keras.layers.DepthwiseConv2D(
+    #     depth_multiplier=16,
+    #     kernel_size=(3,3),
+    #     strides=1,
+    #     padding='same',
+    #     name='depthwise_conv2d_2'
+    #   ),
+    #   tf.keras.layers.BatchNormalization(momentum=0.9),
+    #   tf.keras.layers.ReLU(),
+    #   tf.keras.layers.DepthwiseConv2D(
+    #     depth_multiplier=32,
+    #     kernel_size=(3,3),
+    #     strides=1,
+    #     padding='same',
+    #     name='depthwise_conv2d_3'
+    #   ),
+    #   tf.keras.layers.BatchNormalization(momentum=0.9),
+    #   tf.keras.layers.ReLU(),
+    #   tf.keras.layers.MaxPool2D(
+    #     pool_size=(3,3),
+    #     strides=2,
+    #     name='max_pool_3',
+    #     padding='same'
+    #   ),
+    #   tf.keras.layers.DepthwiseConv2D(
+    #     depth_multiplier=32,
+    #     kernel_size=(3,3),
+    #     strides=1,
+    #     padding='same',
+    #     name='depthwise_conv2d_4'
+    #   ),
+    #   tf.keras.layers.BatchNormalization(momentum=0.9),
+    #   tf.keras.layers.ReLU(),
+    #   tf.keras.layers.GlobalAveragePooling2D(data_format='channels_first')
+    # ], name='conv2d_block')
 
     self.dwt = WaveTFFactory().build(
       kernel_type='haar',
-      dim=1
+      dim=1,
     )
 
     self.classifier = tf.keras.Sequential([
@@ -159,39 +151,54 @@ class FourierModel(tf.keras.Model):
         activation='sigmoid',
         kernel_regularizer=tf.keras.regularizers.l2(0.01)
       )
-    ])
+    ], name='classifier')
+
+  def build(self, input_shape, *args, **kwargs):
+    super().build(input_shape=input_shape, *args, **kwargs)
+    self.conv1d_block.build(input_shape=(None, 178, 1))
+    # self.conv2d_block.build(input_shape=())
+    self.classifier.build(input_shape=(None, 3 * 21))
 
   @tf.function
   def call(self, inputs):
+    print("inputs: ", inputs.shape)
     eeg_conv = self.conv1d_block(inputs)
-    stft_out = tf.abs(
-      tf.signal.stft(
-        inputs[..., 0], 
-        frame_length=128, 
-        frame_step=64,
-        fft_length=128,
-        pad_end=True,
-        window_fn=tf.signal.hann_window,
-      )
-    )[..., tf.newaxis]
-    stft_conv = self.conv2d_block(stft_out)
-    fft_out = tf.signal.rfft(inputs)
-    fft_conv = self.conv2d_block(fft_out)
+    print("eeg_conv: ", eeg_conv.shape)
+    # stft_out = tf.cast(
+    #   x=tf.signal.stft(
+    #     inputs[..., 0],
+    #     frame_length=128, 
+    #     frame_step=8,
+    #     fft_length=128,
+    #     pad_end=True,
+    #     window_fn=tf.signal.hamming_window
+    #   ),
+    #   dtype=tf.float32
+    # )[:, 1:-1, :, tf.newaxis]
+    # print("stft_out: ", stft_out.shape)
+    # stft_conv = self.conv2d_block(stft_out)
+    # print("stft_conv: ", stft_conv.shape)
+    fft_out = tf.cast(tf.signal.fft(tf.cast(inputs, tf.complex64)), tf.float32)
+    fft_conv = self.conv1d_block(fft_out)
+    print("fft_conv: ", fft_conv.shape)
     dwt_out = self.dwt(inputs)
     dwt_conv = self.conv1d_block(tf.reshape(dwt_out, [-1, inputs.shape[1], 1]))
+    print("dwt_conv: ", dwt_conv.shape)
 
-    concat = tf.concat([eeg_conv, stft_conv, fft_conv, dwt_conv], axis=1)
+    # concat = tf.concat([eeg_conv, stft_conv, fft_conv, dwt_conv], axis=1)
+    concat = tf.concat([eeg_conv, fft_conv, dwt_conv], axis=1)
+    print("concat: ", concat.shape)
     return self.classifier(concat)
-
 
   def get_config(self):
     super_config = super().get_config()
-    return {
+    super_config.update({
       'conv1d_block': self.conv1d_block,
       'conv2d_block': self.conv2d_block,
       'classifier': self.classifier,
       'dwt': self.dwt
-    }
+    })
+    return super_config
   
   @classmethod
   def from_config(cls, config):
