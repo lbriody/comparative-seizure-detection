@@ -5,8 +5,10 @@ class FourierModel(tf.keras.Model):
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
+    self.weight_initializer = tf.keras.initializers.GlorotNormal()
     self.conv1d_block = tf.keras.Sequential([
       tf.keras.layers.Conv1D(
+        data_format='channels_first',
         filters=16,
         kernel_size=31,
         strides=1,
@@ -21,6 +23,7 @@ class FourierModel(tf.keras.Model):
         name='maxpool1d_1'
       ),
       tf.keras.layers.DepthwiseConv1D(
+        data_format='channels_first',
         depth_multiplier=16, 
         kernel_size=3, 
         strides=1,
@@ -35,6 +38,7 @@ class FourierModel(tf.keras.Model):
         name='maxpool1d_2'
       ),
       tf.keras.layers.DepthwiseConv1D(
+        data_format='channels_first',
         depth_multiplier=16,
         kernel_size=3,
         strides=1,
@@ -44,6 +48,7 @@ class FourierModel(tf.keras.Model):
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.DepthwiseConv1D(
+        data_format='channels_first',
         depth_multiplier=32,
         kernel_size=3,
         strides=1,
@@ -58,6 +63,7 @@ class FourierModel(tf.keras.Model):
         name='maxpool1d_3'
       ),
       tf.keras.layers.DepthwiseConv1D(
+        data_format='channels_first',
         depth_multiplier=32,
         kernel_size=3,
         strides=1,
@@ -66,7 +72,7 @@ class FourierModel(tf.keras.Model):
       ),
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
-      tf.keras.layers.GlobalAveragePooling1D(data_format='channels_first')
+      tf.keras.layers.GlobalAveragePooling1D()
     ], name='conv1d_block')
 
     # self.conv2d_block = tf.keras.Sequential([
@@ -155,7 +161,7 @@ class FourierModel(tf.keras.Model):
 
   def build(self, input_shape, *args, **kwargs):
     super().build(input_shape=input_shape, *args, **kwargs)
-    self.conv1d_block.build(input_shape=(None, 178, 1))
+    self.conv1d_block.build(input_shape=(None, 1, 178))
     # self.conv2d_block.build(input_shape=())
     self.classifier.build(input_shape=(None, 3 * 21))
 
@@ -181,8 +187,10 @@ class FourierModel(tf.keras.Model):
     fft_out = tf.cast(tf.signal.fft(tf.cast(inputs, tf.complex64)), tf.float32)
     fft_conv = self.conv1d_block(fft_out)
     print("fft_conv: ", fft_conv.shape)
-    dwt_out = self.dwt(inputs)
-    dwt_conv = self.conv1d_block(tf.reshape(dwt_out, [-1, inputs.shape[1], 1]))
+    print(inputs.shape)
+    dwt_out = self.dwt(tf.transpose(inputs, perm=[0,2,1]))
+    print(dwt_out.shape)
+    dwt_conv = self.conv1d_block(tf.reshape(dwt_out, [1, 1, -1]))
     print("dwt_conv: ", dwt_conv.shape)
 
     # concat = tf.concat([eeg_conv, stft_conv, fft_conv, dwt_conv], axis=1)

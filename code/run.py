@@ -105,13 +105,15 @@ def train(args, model: tf.keras.Model) -> None:
     ]
   )
 
-  model.build(input_shape=(None, 178, 1))
+  print(X0.shape)
+
+  model.build(input_shape=(None, 1, 178))
 
   # train model
   model.fit(
-    x=X0,
+    x=tf.transpose(X0, perm=[0,2,1]),
     y=Y0,
-    validation_data=(X1, Y1),
+    validation_data=(tf.transpose(X1, perm=[0,2,1]), Y1),
     batch_size=args.batch_size,
     epochs=args.epochs,
     callbacks=cbs
