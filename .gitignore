@@ -1,5 +1,7 @@
 # Manual ignored files
 logs
+checkpoints
+.vscode
 
 # Default ignored files
 ## Byte-compiled / optimized / DLL files

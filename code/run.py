@@ -76,13 +76,6 @@ def train(args, model: tf.keras.Model) -> None:
     monitor='val_binary_accuracy',
     patience=10
   )
-  reduce_lr_cb = tf.keras.callbacks.ReduceLROnPlateau(
-    monitor='val_binary_accuracy',
-    patience=1,
-    factor= 0.9,
-    mode='max',
-    verbose=0,
-  )
 
   def schedule(epoch, lr):
     if epoch != 0 and epoch % 20 == 0:
@@ -99,7 +92,6 @@ def train(args, model: tf.keras.Model) -> None:
     tensorboard_cb,
     ckpt_cb,
     earlystop_cb,
-    reduce_lr_cb,
     lr_schedule_cb,
     terminate_nan_cb
   ]
