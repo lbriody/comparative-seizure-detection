@@ -67,21 +67,32 @@ def train(args, model: tf.keras.Model) -> None:
     histogram_freq=1
   )
   ckpt_cb = tf.keras.callbacks.ModelCheckpoint(
-    checkpoint_path + 'cp-{epoch:04d}-{val_accuracy:04d}-{val_loss:04d}.ckpt',
-    monitor='val_accuracy',
+    checkpoint_path + 'cp-{epoch:04d}-{val_binary_accuracy:04f}-{val_loss:04f}.ckpt',
+    monitor='val_binary_accuracy',
     save_weights_only=True,
     verbose=1
   )
   earlystop_cb = tf.keras.callbacks.EarlyStopping(
-    monitor='val_accuracy',
+    monitor='val_binary_accuracy',
     patience=10
   )
   reduce_lr_cb = tf.keras.callbacks.ReduceLROnPlateau(
-    monitor='val_accuracy',
+    monitor='val_binary_accuracy',
     patience=1,
     factor= 0.9,
     mode='max',
-    verbose=0
+    verbose=0,
+  )
+
+  def schedule(epoch, lr):
+    if epoch != 0 and epoch % 20 == 0:
+      return lr * 0.5
+    else:
+      return lr
+
+  lr_schedule_cb = tf.keras.callbacks.LearningRateScheduler(
+    schedule=schedule,
+
   )
   terminate_nan_cb = tf.keras.callbacks.TerminateOnNaN()
   cbs = [
@@ -89,6 +100,7 @@ def train(args, model: tf.keras.Model) -> None:
     ckpt_cb,
     earlystop_cb,
     reduce_lr_cb,
+    lr_schedule_cb,
     terminate_nan_cb
   ]
 
@@ -139,8 +151,6 @@ def test(args, model: tf.keras.Model) -> None:
     loss=tf.keras.losses.BinaryCrossentropy(),
     metrics=[
       tf.keras.metrics.BinaryAccuracy(),
-      tf.keras.metrics.Precision(),
-      tf.keras.metrics.Recall()
     ]
   )
 
@@ -200,7 +210,7 @@ def parse_args(args=None) -> Namespace:
   parser.add_argument(
     '--epochs',
     type=int, 
-    default=50, 
+    default=100, 
     help='number of epochs to train.'
   )
   parser.add_argument(

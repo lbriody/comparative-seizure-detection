@@ -6,7 +6,10 @@ class FourierModel(tf.keras.Model):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.weight_initializer = tf.keras.initializers.GlorotNormal(seed=69)
+    self.to_channels_first = tf.keras.layers.Reshape((1, -1))
+    self.to_channels_last = tf.keras.layers.Reshape((-1, 1))
     self.conv1d_block = tf.keras.Sequential([
+      self.to_channels_first,
       tf.keras.layers.Conv1D(
         filters=16,
         kernel_size=31,
@@ -15,6 +18,7 @@ class FourierModel(tf.keras.Model):
         name='conv1d_1',
         kernel_initializer=self.weight_initializer
       ),
+      self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.MaxPool1D(
@@ -22,6 +26,7 @@ class FourierModel(tf.keras.Model):
         strides=2,
         name='maxpool1d_1'
       ),
+      self.to_channels_first,
       tf.keras.layers.DepthwiseConv1D(
         depth_multiplier=16, 
         kernel_size=3, 
@@ -30,6 +35,7 @@ class FourierModel(tf.keras.Model):
         name='depthwise_conv1d_1',
         depthwise_initializer=self.weight_initializer
       ),
+      self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.MaxPool1D(
@@ -37,6 +43,7 @@ class FourierModel(tf.keras.Model):
         strides=2,
         name='maxpool1d_2'
       ),
+      self.to_channels_first,
       tf.keras.layers.DepthwiseConv1D(
         depth_multiplier=16,
         kernel_size=3,
@@ -55,6 +62,7 @@ class FourierModel(tf.keras.Model):
         name='depthwise_conv1d_3',
         depthwise_initializer=self.weight_initializer
       ),
+      self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.MaxPool1D(
@@ -62,6 +70,7 @@ class FourierModel(tf.keras.Model):
         strides=2,
         name='maxpool1d_3'
       ),
+      self.to_channels_first,
       tf.keras.layers.DepthwiseConv1D(
         depth_multiplier=32,
         kernel_size=3,
@@ -70,6 +79,7 @@ class FourierModel(tf.keras.Model):
         name='depthwise_conv1d_4',
         depthwise_initializer=self.weight_initializer
       ),
+      self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
       tf.keras.layers.GlobalAveragePooling1D(data_format='channels_first')
