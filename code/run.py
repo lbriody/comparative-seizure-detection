@@ -99,21 +99,17 @@ def train(args, model: tf.keras.Model) -> None:
     ),
     loss=tf.keras.losses.BinaryCrossentropy(),
     metrics=[
-      tf.keras.metrics.BinaryAccuracy(),
-      tf.keras.metrics.Precision(),
-      tf.keras.metrics.Recall()
+      tf.keras.metrics.BinaryAccuracy()
     ]
   )
 
-  print(X0.shape)
-
-  model.build(input_shape=(None, 1, 178))
+  model.build(input_shape=(None, 178, 1))
 
   # train model
   model.fit(
-    x=tf.transpose(X0, perm=[0,2,1]),
+    x=X0,
     y=Y0,
-    validation_data=(tf.transpose(X1, perm=[0,2,1]), Y1),
+    validation_data=(X1, Y1),
     batch_size=args.batch_size,
     epochs=args.epochs,
     callbacks=cbs
