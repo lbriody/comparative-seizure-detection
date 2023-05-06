@@ -20,7 +20,7 @@ class FourierModel(tf.keras.Model):
       ),
       self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.ReLU(),
+      tf.keras.layers.LeakyReLU(),
       tf.keras.layers.MaxPool1D(
         pool_size=3,
         strides=2,
@@ -37,7 +37,7 @@ class FourierModel(tf.keras.Model):
       ),
       self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.ReLU(),
+      tf.keras.layers.LeakyReLU(),
       tf.keras.layers.MaxPool1D(
         pool_size=3,
         strides=2,
@@ -53,7 +53,7 @@ class FourierModel(tf.keras.Model):
         depthwise_initializer=self.weight_initializer
       ),
       tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.ReLU(),
+      tf.keras.layers.LeakyReLU(),
       tf.keras.layers.DepthwiseConv1D(
         depth_multiplier=32,
         kernel_size=3,
@@ -64,7 +64,7 @@ class FourierModel(tf.keras.Model):
       ),
       self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.ReLU(),
+      tf.keras.layers.LeakyReLU(),
       tf.keras.layers.MaxPool1D(
         pool_size=3,
         strides=2,
@@ -81,7 +81,7 @@ class FourierModel(tf.keras.Model):
       ),
       self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.ReLU(),
+      tf.keras.layers.LeakyReLU(),
       tf.keras.layers.GlobalAveragePooling1D(data_format='channels_first')
     ], name='conv1d_block')
 
@@ -159,21 +159,16 @@ class FourierModel(tf.keras.Model):
 
     self.classifier = tf.keras.Sequential([
       tf.keras.layers.Flatten(),
+      tf.keras.layers.Dropout(0.3)
       tf.keras.layers.Dense(128, kernel_initializer=self.weight_initializer),
       tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.ReLU(),
+      tf.keras.layers.LeakyReLU(),
       tf.keras.layers.Dense(
         units=1,
         activation='sigmoid',
         kernel_regularizer=tf.keras.regularizers.l2(0.01)
       )
     ], name='classifier')
-
-  def build(self, input_shape, *args, **kwargs):
-    super().build(input_shape=input_shape, *args, **kwargs)
-    self.conv1d_block.build(input_shape=(None, 1, 178))
-    # self.conv2d_block.build(input_shape=())
-    self.classifier.build(input_shape=(None, 3 * 21))
 
   @tf.function
   def call(self, inputs):

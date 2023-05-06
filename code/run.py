@@ -67,9 +67,10 @@ def train(args, model: tf.keras.Model) -> None:
     histogram_freq=1
   )
   ckpt_cb = tf.keras.callbacks.ModelCheckpoint(
-    checkpoint_path + 'cp-{epoch:04d}-{val_binary_accuracy:04f}-{val_loss:04f}.ckpt',
+    os.path.join(checkpoint_path, 'cp-{epoch:04d}-{val_binary_accuracy:04f}-{val_loss:04f}.ckpt'),
     monitor='val_binary_accuracy',
     save_weights_only=True,
+    save_best_only=True,
     verbose=1
   )
   earlystop_cb = tf.keras.callbacks.EarlyStopping(
@@ -84,8 +85,7 @@ def train(args, model: tf.keras.Model) -> None:
       return lr
 
   lr_schedule_cb = tf.keras.callbacks.LearningRateScheduler(
-    schedule=schedule,
-
+    schedule=schedule
   )
   terminate_nan_cb = tf.keras.callbacks.TerminateOnNaN()
   cbs = [
@@ -106,8 +106,6 @@ def train(args, model: tf.keras.Model) -> None:
       tf.keras.metrics.BinaryAccuracy()
     ]
   )
-
-  model.build(input_shape=(None, 178, 1))
 
   # train model
   model.fit(
