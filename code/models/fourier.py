@@ -82,7 +82,7 @@ class FourierModel(tf.keras.Model):
       self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
       tf.keras.layers.ReLU(),
-      tf.keras.layers.GlobalAveragePooling1D(data_format='channels_first')
+      tf.keras.layers.GlobalAveragePooling1D(data_format='channels_first'),
     ], name='conv1d_block')
 
     # self.conv2d_block = tf.keras.Sequential([
