@@ -3,7 +3,7 @@ from wavetf import WaveTFFactory
 
 class FourierModel(tf.keras.Model):
 
-  def __init__(self, *args, **kwargs):
+  def __init__(self, num_feats, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.weight_initializer = tf.keras.initializers.GlorotNormal(seed=69)
     self.to_channels_first = tf.keras.layers.Reshape((1, -1))
@@ -16,11 +16,11 @@ class FourierModel(tf.keras.Model):
         strides=1,
         padding='same',
         name='conv1d_1',
-        kernel_initializer=self.weight_initializer
+        kernel_initializer=self.weight_initializer,
       ),
       self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.LeakyReLU(),
+      tf.keras.layers.ReLU(),
       tf.keras.layers.MaxPool1D(
         pool_size=3,
         strides=2,
@@ -33,11 +33,11 @@ class FourierModel(tf.keras.Model):
         strides=1,
         padding='same',
         name='depthwise_conv1d_1',
-        depthwise_initializer=self.weight_initializer
+        depthwise_initializer=self.weight_initializer,
       ),
       self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.LeakyReLU(),
+      tf.keras.layers.ReLU(),
       tf.keras.layers.MaxPool1D(
         pool_size=3,
         strides=2,
@@ -50,21 +50,21 @@ class FourierModel(tf.keras.Model):
         strides=1,
         padding='same',
         name='depthwise_conv1d_2',
-        depthwise_initializer=self.weight_initializer
+        depthwise_initializer=self.weight_initializer,
       ),
       tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.LeakyReLU(),
+      tf.keras.layers.ReLU(),
       tf.keras.layers.DepthwiseConv1D(
         depth_multiplier=32,
         kernel_size=3,
         strides=1,
         padding='same',
         name='depthwise_conv1d_3',
-        depthwise_initializer=self.weight_initializer
+        depthwise_initializer=self.weight_initializer,
       ),
       self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.LeakyReLU(),
+      tf.keras.layers.ReLU(),
       tf.keras.layers.MaxPool1D(
         pool_size=3,
         strides=2,
@@ -77,11 +77,11 @@ class FourierModel(tf.keras.Model):
         strides=1,
         padding='same',
         name='depthwise_conv1d_4',
-        depthwise_initializer=self.weight_initializer
+        depthwise_initializer=self.weight_initializer,
       ),
       self.to_channels_last,
       tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.LeakyReLU(),
+      tf.keras.layers.ReLU(),
       tf.keras.layers.GlobalAveragePooling1D(data_format='channels_first')
     ], name='conv1d_block')
 
@@ -159,14 +159,18 @@ class FourierModel(tf.keras.Model):
 
     self.classifier = tf.keras.Sequential([
       tf.keras.layers.Flatten(),
-      tf.keras.layers.Dropout(0.3)
-      tf.keras.layers.Dense(128, kernel_initializer=self.weight_initializer),
-      tf.keras.layers.BatchNormalization(momentum=0.9),
-      tf.keras.layers.LeakyReLU(),
       tf.keras.layers.Dense(
-        units=1,
-        activation='sigmoid',
-        kernel_regularizer=tf.keras.regularizers.l2(0.01)
+        num_feats * 32, 
+        kernel_initializer=self.weight_initializer,
+        kernel_regularizer=tf.keras.regularizers.l2(0.01),
+      ),
+      tf.keras.layers.BatchNormalization(momentum=0.9),
+      tf.keras.layers.ReLU(),
+      tf.keras.layers.Dense(
+        units=2,
+        activation='softmax',
+        kernel_initializer=self.weight_initializer,
+        kernel_regularizer=tf.keras.regularizers.l2(0.01),
       )
     ], name='classifier')
 

@@ -67,14 +67,14 @@ def train(args, model: tf.keras.Model) -> None:
     histogram_freq=1
   )
   ckpt_cb = tf.keras.callbacks.ModelCheckpoint(
-    os.path.join(checkpoint_path, 'cp-{epoch:04d}-{val_binary_accuracy:04f}-{val_loss:04f}.ckpt'),
-    monitor='val_binary_accuracy',
+    os.path.join(checkpoint_path, 'cp-{epoch:04d}-{val_sparse_categorical_accuracy:04f}-{val_loss:04f}.ckpt'),
+    monitor='val_sparse_categorical_accuracy',
     save_weights_only=True,
     save_best_only=True,
     verbose=1
   )
   earlystop_cb = tf.keras.callbacks.EarlyStopping(
-    monitor='val_binary_accuracy',
+    monitor='val_sparse_categorical_accuracy',
     patience=10
   )
 
@@ -101,9 +101,9 @@ def train(args, model: tf.keras.Model) -> None:
     optimizer=tf.keras.optimizers.Adam(
       learning_rate=args.lr
     ),
-    loss=tf.keras.losses.BinaryCrossentropy(),
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(),
     metrics=[
-      tf.keras.metrics.BinaryAccuracy()
+      tf.keras.metrics.SparseCategoricalAccuracy()
     ]
   )
 
@@ -138,9 +138,9 @@ def test(args, model: tf.keras.Model) -> None:
     optimizer=tf.keras.optimizers.Adam(
       learning_rate=args.lr
     ),
-    loss=tf.keras.losses.BinaryCrossentropy(),
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(),
     metrics=[
-      tf.keras.metrics.BinaryAccuracy(),
+      tf.keras.metrics.SparseCategoricalAccuracy(),
     ]
   )
 
@@ -152,9 +152,18 @@ def test(args, model: tf.keras.Model) -> None:
 
 
 def get_model(args) -> keras.Model:
-  # TODO: alter for new plan
-  if args.model == 'fourier':
-    return FourierModel()
+  if args.model == 'eeg':
+    return FourierModel(1)
+  elif args.model == 'fft':
+    return FourierModel(1)
+  elif args.model == 'dwt':
+    return FourierModel(1)
+  elif args.model == 'stft' or args.model == 'model_2d':
+    return FourierModel(1)
+  elif args.model == 'model_1d':
+    return FourierModel(3)
+  elif args.model == 'model_full':
+    return FourierModel(4)
 
 
 def parse_args(args=None) -> Namespace:
@@ -179,10 +188,10 @@ def parse_args(args=None) -> Namespace:
     help='path to data directory.'
   )
   parser.add_argument(
-    '--model', 
+    '--model',
     type=str, 
-    default='fourier', 
-    choices=['model_1d','model_2d','model_full'], 
+    default='model_1d', 
+    choices=['eeg', 'fft', 'dwt', 'stft', 'model_1d', 'model_2d', 'model_full'], 
     help='model to use.'
   )
   parser.add_argument(
