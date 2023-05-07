@@ -85,72 +85,72 @@ class FourierModel(tf.keras.Model):
       tf.keras.layers.GlobalAveragePooling1D(data_format='channels_first'),
     ], name='conv1d_block')
 
-    # self.conv2d_block = tf.keras.Sequential([
-    #   tf.keras.layers.Conv2D(
-    #     filters=16,
-    #     kernel_size=(15,7),
-    #     strides=1,
-    #     padding='same',
-    #     name='conv2d_1'
-    #   ),
-    #   tf.keras.layers.BatchNormalization(momentum=0.9),
-    #   tf.keras.layers.ReLU(),
-    #   tf.keras.layers.MaxPool2D(
-    #     pool_size=(3,3),
-    #     strides=2,
-    #     name='max_pool_1',
-    #     padding='same'
-    #   ),
-    #   tf.keras.layers.DepthwiseConv2D(
-    #     depth_multiplier=16,
-    #     kernel_size=(3,3),
-    #     strides=1,
-    #     padding='same',
-    #     name='depthwise_conv2d_1'
-    #   ),
-    #   tf.keras.layers.BatchNormalization(momentum=0.9),
-    #   tf.keras.layers.ReLU(),
-    #   tf.keras.layers.MaxPool2D(
-    #     pool_size=(3,3),
-    #     strides=2,
-    #     name='max_pool_2',
-    #     padding='same'
-    #   ),
-    #   tf.keras.layers.DepthwiseConv2D(
-    #     depth_multiplier=16,
-    #     kernel_size=(3,3),
-    #     strides=1,
-    #     padding='same',
-    #     name='depthwise_conv2d_2'
-    #   ),
-    #   tf.keras.layers.BatchNormalization(momentum=0.9),
-    #   tf.keras.layers.ReLU(),
-    #   tf.keras.layers.DepthwiseConv2D(
-    #     depth_multiplier=32,
-    #     kernel_size=(3,3),
-    #     strides=1,
-    #     padding='same',
-    #     name='depthwise_conv2d_3'
-    #   ),
-    #   tf.keras.layers.BatchNormalization(momentum=0.9),
-    #   tf.keras.layers.ReLU(),
-    #   tf.keras.layers.MaxPool2D(
-    #     pool_size=(3,3),
-    #     strides=2,
-    #     name='max_pool_3',
-    #     padding='same'
-    #   ),
-    #   tf.keras.layers.DepthwiseConv2D(
-    #     depth_multiplier=32,
-    #     kernel_size=(3,3),
-    #     strides=1,
-    #     padding='same',
-    #     name='depthwise_conv2d_4'
-    #   ),
-    #   tf.keras.layers.BatchNormalization(momentum=0.9),
-    #   tf.keras.layers.ReLU(),
-    #   tf.keras.layers.GlobalAveragePooling2D(data_format='channels_first')
-    # ], name='conv2d_block')
+    self.conv2d_block = tf.keras.Sequential([
+      tf.keras.layers.Conv2D(
+        filters=16,
+        kernel_size=(15,7),
+        strides=1,
+        padding='same',
+        name='conv2d_1'
+      ),
+      tf.keras.layers.BatchNormalization(momentum=0.9),
+      tf.keras.layers.ReLU(),
+      tf.keras.layers.MaxPool2D(
+        pool_size=(3,3),
+        strides=2,
+        name='max_pool_1',
+        padding='same'
+      ),
+      tf.keras.layers.DepthwiseConv2D(
+        depth_multiplier=16,
+        kernel_size=(3,3),
+        strides=1,
+        padding='same',
+        name='depthwise_conv2d_1'
+      ),
+      tf.keras.layers.BatchNormalization(momentum=0.9),
+      tf.keras.layers.ReLU(),
+      tf.keras.layers.MaxPool2D(
+        pool_size=(3,3),
+        strides=2,
+        name='max_pool_2',
+        padding='same'
+      ),
+      tf.keras.layers.DepthwiseConv2D(
+        depth_multiplier=16,
+        kernel_size=(3,3),
+        strides=1,
+        padding='same',
+        name='depthwise_conv2d_2'
+      ),
+      tf.keras.layers.BatchNormalization(momentum=0.9),
+      tf.keras.layers.ReLU(),
+      tf.keras.layers.DepthwiseConv2D(
+        depth_multiplier=32,
+        kernel_size=(3,3),
+        strides=1,
+        padding='same',
+        name='depthwise_conv2d_3'
+      ),
+      tf.keras.layers.BatchNormalization(momentum=0.9),
+      tf.keras.layers.ReLU(),
+      tf.keras.layers.MaxPool2D(
+        pool_size=(3,3),
+        strides=2,
+        name='max_pool_3',
+        padding='same'
+      ),
+      tf.keras.layers.DepthwiseConv2D(
+        depth_multiplier=32,
+        kernel_size=(3,3),
+        strides=1,
+        padding='same',
+        name='depthwise_conv2d_4'
+      ),
+      tf.keras.layers.BatchNormalization(momentum=0.9),
+      tf.keras.layers.ReLU(),
+      tf.keras.layers.GlobalAveragePooling2D(data_format='channels_first')
+    ], name='conv2d_block')
 
     self.dwt = WaveTFFactory().build(
       kernel_type='haar',
@@ -179,20 +179,20 @@ class FourierModel(tf.keras.Model):
     print("inputs: ", inputs.shape)
     eeg_conv = self.conv1d_block(inputs)
     print("eeg_conv: ", eeg_conv.shape)
-    # stft_out = tf.cast(
-    #   x=tf.signal.stft(
-    #     inputs[..., 0],
-    #     frame_length=128, 
-    #     frame_step=8,
-    #     fft_length=128,
-    #     pad_end=True,
-    #     window_fn=tf.signal.hamming_window
-    #   ),
-    #   dtype=tf.float32
-    # )[:, 1:-1, :, tf.newaxis]
-    # print("stft_out: ", stft_out.shape)
-    # stft_conv = self.conv2d_block(stft_out)
-    # print("stft_conv: ", stft_conv.shape)
+    stft_out = tf.cast(
+      x=tf.signal.stft(
+        inputs[..., 0],
+        frame_length=128, 
+        frame_step=8, 
+        fft_length=128,
+        pad_end=True,
+        window_fn=tf.signal.hamming_window
+      ),
+      dtype=tf.float32
+    )[:, 1:-1, :, tf.newaxis]
+    print("stft_out: ", stft_out.shape)
+    stft_conv = self.conv2d_block(stft_out)
+    print("stft_conv: ", stft_conv.shape)
     fft_out = tf.cast(tf.signal.fft(tf.cast(inputs, tf.complex64)), tf.float32)
     fft_conv = self.conv1d_block(fft_out)
     print("fft_conv: ", fft_conv.shape)
