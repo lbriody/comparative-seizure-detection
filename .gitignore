@@ -1,6 +1,5 @@
 # Manual ignored files
 logs
-checkpoints
 .vscode
 
 # Default ignored files
