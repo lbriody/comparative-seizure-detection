@@ -77,13 +77,11 @@ def train(args, model: tf.keras.Model) -> None:
     monitor='val_sparse_categorical_accuracy',
     patience=10
   )
-
   def schedule(epoch, lr):
     if epoch != 0 and epoch % 20 == 0:
       return lr * 0.5
     else:
       return lr
-
   lr_schedule_cb = tf.keras.callbacks.LearningRateScheduler(
     schedule=schedule
   )
@@ -153,17 +151,17 @@ def test(args, model: tf.keras.Model) -> None:
 
 def get_model(args) -> keras.Model:
   if args.model == 'eeg':
-    return FourierModel(1)
+    return FourierModel(eeg=True)
   elif args.model == 'fft':
-    return FourierModel(1)
+    return FourierModel(fft=True)
   elif args.model == 'dwt':
-    return FourierModel(1)
-  elif args.model == 'stft' or args.model == 'model_2d':
-    return FourierModel(1)
+    return FourierModel(dwt=True)
+  elif args.model == 'stft':
+    return FourierModel(stft=True)
   elif args.model == 'model_1d':
-    return FourierModel(3)
+    return FourierModel(eeg=True, fft=True, dwt=True)
   elif args.model == 'model_full':
-    return FourierModel(4)
+    return FourierModel(full=True)
 
 
 def parse_args(args=None) -> Namespace:
@@ -191,7 +189,7 @@ def parse_args(args=None) -> Namespace:
     '--model',
     type=str, 
     default='model_1d', 
-    choices=['eeg', 'fft', 'dwt', 'stft', 'model_1d', 'model_2d', 'model_full'], 
+    choices=['eeg', 'fft', 'dwt', 'stft', 'model_1d', 'model_full'], 
     help='model to use.'
   )
   parser.add_argument(
@@ -231,9 +229,6 @@ def parse_args(args=None) -> Namespace:
 
 def main(args) -> None:
   model = get_model(args)
-  if args.model == 'model_full':
-    if not args.weights_1d or args.weights_2d is None:
-      raise ValueError('weights_1d and weights_2d must be specified for model_full.')
   if args.load_weights is not None: model.load_weights(args)
 
   if args.task in ('train', 'both'): 
